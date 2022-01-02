@@ -8,6 +8,7 @@
 + TypeScript
 + Scss
 + IDE - Visual Studio Code
++ Git(вся работа проводилась в ветке main)
 
 ### Запуск
 1. Склонируйте проект: **git clone https://github.com/NastyNastyAlexseeva/chips-input.git**
