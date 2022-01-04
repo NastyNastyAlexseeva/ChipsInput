@@ -1,5 +1,5 @@
 // font
-$font-size: 14px;
+$font-size: 12px;
 $font-family: sans-serif;
 $font-weight: 500;
 
@@ -30,5 +30,6 @@ $chips-border-color: $blue-500;
 $error: #dd6d52;
 
 // border
-
+$chips-border: 2px solid $chips-bckg;
+$chips-border-selected: 2px solid $chips-border-color;
 // transition

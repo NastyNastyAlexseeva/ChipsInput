@@ -1,0 +1,14 @@
+.chipsInput {
+    &__chips {
+
+    }
+
+    &__input-label {
+        display: inline-block;
+        min-width: 20px;
+    }
+
+    &__input{
+        display: none;
+    }
+}

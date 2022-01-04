@@ -1,8 +1,30 @@
 @import "../../static/scss/main.scss";
 
 .chips {
-    font-size: $font-size;
-    font-family: $font-family;
-    color: $font-color;
-    font-weight: $font-weight;
+    background-color: $chips-bckg;
+    border-radius: 6px;
+    border: $chips-border;
+    display: inline;
+    vertical-align: middle;
+    padding: 3px 2px;
+
+    &__value {
+        color: $chips-font-color;
+        font-size: $font-size;
+        font-family: $font-family;
+        font-weight: $font-weight;
+        vertical-align: unset;
+    }
+
+    &__close {
+        color: $close;
+        vertical-align: middle;
+        padding-left: 5px;
+
+        svg {
+            width: 16px;
+            height: 16px;
+            vertical-align: text-top;
+        }
+    }
 }

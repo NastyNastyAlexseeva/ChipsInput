@@ -1,12 +1,12 @@
 import './Form.scss';
 import React from 'react';
 
-interface FormInterface {
+interface IForm {
     action?: string,
     method?: "get" | "post",
 }
 
-interface PropTypes extends FormInterface {
+interface PropTypes extends IForm {
     children?: React.ReactNode |  React.ReactNode[],
 }
 
