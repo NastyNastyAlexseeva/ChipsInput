@@ -5,7 +5,7 @@ import ChipsInput from '../../components/ChipsInput';
 import './App.scss';
 
 const App = () => {
-	const [valueСIDefault, setValueСIDefault] = useState('Это - строка для чипсов, чипс1, чипс"2",');
+	const [valueСIDefault, setValueСIDefault] = useState("чипс1, 'чипс,2', чипс3',',");
 
 	const handlerInput = (event: React.ChangeEvent<HTMLLabelElement>) => {
 		// console.log('handler is app',event.target.getAttribute('data-value'))

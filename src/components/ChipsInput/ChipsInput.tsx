@@ -27,19 +27,20 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
     let chipsStaticArray: string[] = [];
 
     let allValue: string = value;
-
+    // const value1 = "чипс1, 'чипс,2', чипс3',',";
     useLayoutEffect(() => {
         createChips();
         setChipsValue(chipsStaticArray);
-        console.log(allValue);
         // labelRef.current?.setSelectionRange
     },[value]);
 
     const createChips = () => {
+        const stringChips = value.replace(/,(?=(([^']*'){2})*[^']*$)(?=(([^\"]*\"){2})*[^\"]*$)(?![^()]*\\)/gm, '&#44;');
 
-        value.split(/,/).forEach(ships => {
-            chipsStaticArray.push(ships)
+        stringChips.split('&#44;').forEach(chips => {
+            chipsStaticArray.push(chips)
         });
+
 
         // parseValueForLabel('');
         // setLabelValue('');
@@ -138,6 +139,7 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
                     placeholder={placeholder} />
             {labelValue}
             </label>
+            {/* {newValue} */}
         </div>
     );
 };
