@@ -5,12 +5,12 @@ import ChipsInput from '../../components/ChipsInput';
 import './App.scss';
 
 const App = () => {
-	const [valueСIDefault, setValueСIDefault] = useState("чипс1, 'чипс,2', чипс3',',");
+	const [valueСIDefault, setValueСIDefault] = useState("чипс1, чипс2, чипс3");
 
-	const handlerInput = (event: React.ChangeEvent<HTMLLabelElement>) => {
-		// console.log('handler is app',event.target.getAttribute('data-value'))
-		setValueСIDefault(event.target.innerText);
-	}
+	// const handlerInput = (event: React.ChangeEvent<HTMLLabelElement>) => {
+	// 	// console.log('handler is app',event.target.getAttribute('data-value'))
+	// 	setValueСIDefault(event.target.innerText);
+	// }
 
 	return (
 		<main className='main'>
@@ -21,7 +21,7 @@ const App = () => {
 						name='chipsInputDefault'
 						placeholder="Введите ключевые слова"
 						value={valueСIDefault}
-						onChange={handlerInput} />
+						onChange={setValueСIDefault} />
 				</Form>
 			</section>
 		</main>
