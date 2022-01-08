@@ -2,14 +2,25 @@
 
 .chips {
     background-color: $chips-bckg;
-    border-radius: 6px;
+    border-radius: 4px;
     border: $chips-border;
-    display: inline;
+    display: inline-block;
     vertical-align: middle;
-    padding: 3px 2px;
+    padding: 3px 2px 1px 5px;
+    margin-bottom: 5px;
+
+    &.chips-selected {
+        border-color: $chips-border-selected;
+        background-color: $chips-bckg-selected;
+        cursor: text;
+    }
 
     &.chips-selected &__value {
-        color: red !important;
+        color: $chips-font-color-selected;
+    }
+
+    &:not(:last-child) {
+        margin-right: 5px;
     }
 
     &__value {
@@ -18,18 +29,26 @@
         font-family: $font-family;
         font-weight: $font-weight;
         vertical-align: unset;
-        -webkit-user-select: none;
+        transition: $transition-chips;
+        word-break: break-all;
     }
 
     &__close {
         color: $close;
         vertical-align: middle;
         padding-left: 5px;
+        transition: $transition-chips;
 
         svg {
             width: 16px;
             height: 16px;
             vertical-align: text-top;
+        }
+
+        &:hover,
+        &:focus,
+        &:active {
+            color: $close-hover;
         }
     }
 }

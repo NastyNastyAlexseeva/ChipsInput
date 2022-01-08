@@ -1,4 +1,3 @@
-import './Form.scss';
 import React from 'react';
 
 interface IForm {
@@ -12,7 +11,7 @@ interface PropTypes extends IForm {
 
 const Form: React.FC = ({action, method, children}: PropTypes) => {
     return (
-        <form action={action} method={method}>
+        <form className='form' action={action} method={method}>
             {children}
         </form>
     )

@@ -1,16 +1,41 @@
+@import "../../static/scss/main.scss";
+
 .chipsInput {
+    width: 350px;
+    margin: 0 auto 30px;
+    border-radius: 4px;
+    background-color: $bckg-field;
+    padding: 10px 6px 5px;
+    position: relative;
+
     &__chips {
-        &::selection {
-            background-color: red;
-        }
+        display: inline;
+        line-height: 18px;
     }
 
     &__input-label {
         display: inline-block;
+        vertical-align: middle;
         min-width: 20px;
+        word-break: break-all;
+        padding: 3px 2px 3px 5px;
+        margin-bottom: 5px;
+        color: $font-color;
     }
 
     &__input{
         display: none;
+    }
+
+    &__error {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        color: $error;
+        display: block;
+    }
+
+    &__placeholder {
+        color: $placeholder;
     }
 }

@@ -1,16 +1,16 @@
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
-import cn from 'classnames';
 import Chips from '../Chips';
 
 import './ChipsInput.scss';
-import classNames from 'classnames';
 
 interface IChipsInput {
-    id: string,
-    name: string,
-    value: string;
+    id: string, // id input
+    name: string, // name input
+    value: string; // all value
+    isEditableChips?: boolean, // editable field
+    isClearableChips?: boolean, // clear value and icon close
     placeholder?: string,
-    onChange?: (string: string) => void,
+    onChange?: (string: string) => void, // change handler
 }
 
 interface IChips {
@@ -18,10 +18,19 @@ interface IChips {
     value: string,
 }
 
-const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
+const ChipsInput = ({
+    id,
+    name,
+    value,
+    placeholder,
+    isEditableChips = false,
+    isClearableChips = false,
+    onChange}: IChipsInput) => {
 
-    const refChipsInput = useRef(null);
+    const refLabel = useRef<HTMLLabelElement | null>(null);
+    const [placeHolder, setPlaceHolder] = useState(placeholder);
 
+    // функция для подсчета двойных кавычек и валидации
     const isValidQuotes = (validationString) => {
         let quotesCount = 0;
 
@@ -34,16 +43,17 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
         return !(quotesCount % 2);
     };
 
+    // функция для генерации id, вариант с current++ показался глупым
     const idChipsGenerator = () => {
         return `id_${Math.random()*10}`;
     };
 
-    const [isValid, setValid] = useState(isValidQuotes(value));
+    const [isValid, setValid] = useState(isValidQuotes(value)); // для валидации при инициализации и вводимых значений
 
-    const reg: RegExp = /,(?=(?:[^"]*"[^"]*")*[^"]*$)/gm;
-    const isLastQuotes: Boolean = value[value.length-1] === ',';
-    const arrValue: string[] = value.split(reg);
-    const lastValue: string = isValid ? arrValue[arrValue.length -1] : value;
+    const reg: RegExp = /,(?=(?:[^"]*"[^"]*")*[^"]*$)/gm; // регулярка ищет запятые вне двойных кавычек
+    const isLastQuotes: Boolean = value[value.length-1] === ','; // ищем, является ли последний символ - запятой, необходима для инициализации
+    const arrValue: string[] = value.split(reg); // делаем из value массив, необходимо для инициализации
+    const lastValue: string = isValid ? arrValue[arrValue.length -1] : value; // ищем последнее значение, необходимо для инициализации
 
     const [inputChips, setInputChips] = useState({
         chips: [],
@@ -51,13 +61,14 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
         initLastValue: '',
     });
 
-    const [isEdit, setEdit] = useState(false);
+    const [isEdit, setEdit] = useState(false); // чтобы разделить useEffect на тот, который инициализирует, и тот, который работает с вводимым значением
 
+
+    // функция для первой отрисовки инпут чипса
     const initChips = () => {
         let arrChips: IChips[] = [];
 
         if(isValid) {
-
             if(isLastQuotes) {
                 value.split(reg).forEach(chips => {
                     if(chips && chips !== ' ') {
@@ -79,26 +90,33 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
                 });
             }
 
-        }
+        };
 
         setInputChips({
             chips: arrChips,
             value: lastValue ?? inputChips.value,
             initLastValue: lastValue,
         });
+
+        if(lastValue) {
+            setPlaceHolder('');
+        }
     }
 
+    // только для инициализации
     useLayoutEffect(() => {
         initChips();
         setEdit(true);
     },[]);
 
+    // только для работы с изменяемым полем
     useLayoutEffect(() => {
         if(isEdit) {
             editInput();
         }
     },[value]);
 
+    // функция для работы с изменяемым полем
     const editInput = () => {
         let arrChips: object[] = [];
 
@@ -125,11 +143,13 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
         }
     }
 
+    // вынесла обрезку innerText из change
     const newInnerText = (text) => {
         let replaceValidComma = text.replace(reg, "&#44;");
         return replaceValidComma.substring(replaceValidComma.lastIndexOf("&#44;")+5);
     };
 
+    // вынесла преобразование чипсов в текст из change
     const chipsString = () => {
         let chipsString = [];
 
@@ -140,13 +160,15 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
         return chipsString.join(', ') + ', ';
     };
 
-    const handlerLabel = (event: React.ChangeEvent<HTMLLabelElement>) => {
+    // функция для работы с вводом в поле label
+    const handlerLabelInput = (event: React.ChangeEvent<HTMLLabelElement>) => {
         const text = event.target.innerText;
         setInputChips({
             chips: inputChips.chips,
             value: text,
             initLastValue: inputChips.initLastValue,
         });
+        setPlaceHolder('');
 
         setValid(isValidQuotes(text));
 
@@ -163,19 +185,37 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
         };
     };
 
-    const handlerClear = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
+    // функция для удаления чипса по крестику
+    const handlerClear = (id: string) => {
         setInputChips({
             chips: inputChips.chips.filter(chips => chips.id !== id),
             value: inputChips.value,
             initLastValue: inputChips.initLastValue,
         });
     };
+    
+    const [isMouseDown, getMouseDown] = useState(false); // отслеживаем, нажата ли кнопка мыши
+    const [selectedChips, getSelectedChips] = useState([]); // массив выделенных чипсов
 
-    const [isMouseDown, getMouseDown] = useState(false);
-    const [selectedChips, getSelectedChips] = useState([]);
+    // функция для выделения чипсов
+    const handlerSelect = (event: any) => {
+        if(isMouseDown) {
+            refLabel.current?.focus();
+            const currentNode = document.elementFromPoint(event.clientX, event.clientY);
 
+            inputChips.chips.forEach(chips => {
+                if(chips.id === currentNode.id && !selectedChips.includes(chips.id)) {
+                    getSelectedChips([...selectedChips, chips.id]);
+                }
+            });
+        } else {
+            getSelectedChips([]);
+        }
+    };
+
+    // функция для удаления чипсов по кнопке Backspace или Delete
     const handlerDelete = (event: React.KeyboardEvent<HTMLLabelElement>) => {
-        if(inputChips.chips && !inputChips.value && (event.key === 'Backspace' || event.key === 'Delete')) {
+        if(inputChips.chips && !refLabel.current?.innerText && (event.key === 'Backspace' || event.key === 'Delete')) {
             let newChipsArr = inputChips.chips;
 
             if(selectedChips.length) {
@@ -190,23 +230,44 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
                 initLastValue: inputChips.initLastValue,
             });
         }
-    }
+    };
 
-    const handlerSelect = (event: any) => {
-        refChipsInput.current?.focus();
+    // отслеживаем изменения в чипсах
+    const handlerEditChips = (id: string, value: string) => {
+        let newChipsArr: IChips[] = inputChips.chips;
 
-        if(isMouseDown) {
-            const currentNode = document.elementFromPoint(event.clientX, event.clientY);
+        setValid(isValidQuotes(value));
 
-            inputChips.chips.forEach(chips => {
-                if(chips.id === currentNode.id && !selectedChips.includes(chips.id)) {
-                    getSelectedChips([...selectedChips, chips.id]);
+        if(isValid) {
+            inputChips.chips.forEach((chips, index) => {
+                if(chips.id === id) {
+                    let addChips: any[]= [];
+
+                    if(value.split(reg).length >= 2) {
+                        value.split(reg).forEach(newValueChips => {
+                            addChips.push({
+                                id: idChipsGenerator(),
+                                value: newValueChips,
+                            })
+                        });
+                    } else {
+                        addChips.push({id, value});
+                    }
+
+                    newChipsArr = [...inputChips.chips.slice(0,index), ...addChips, ...inputChips.chips.slice(index+1)];
                 }
             });
-        } else {
-            getSelectedChips([]);
         }
+
+        setInputChips({
+            chips: newChipsArr,
+            value: inputChips.value,
+            initLastValue: inputChips.initLastValue,
+        });
     };
+
+    // чипс был реализован с помощью скрытого input, который должен содержать
+    // общее значение вводимого значения и чипсов. Это необходимо для соотвествия верстки приложенным скринам
 
     return (
         <div className='chipsInput'>
@@ -218,15 +279,16 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
                 {
                     inputChips.chips.map((chips: IChips) => {
                         return (
-                            chips &&
+                            chips.value &&
                             <Chips
                                 id={chips.id}
                                 key={chips.id}
-                                // isEditable
+                                isEditable={isEditableChips}
                                 isSelected={selectedChips.includes(chips.id)}
-                                isClearable
+                                isClearable={isClearableChips}
                                 value={chips.value}
                                 onClear={handlerClear}
+                                onChange={handlerEditChips}
                             />
                         )
                     })
@@ -235,16 +297,19 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
             </div>
             <label
                 className='chipsInput__input-label'
-                onInput={handlerLabel}
+                onInput={handlerLabelInput}
                 onKeyDown={handlerDelete}
+                onClick={() => setPlaceHolder('')}
                 autoCapitalize="off"
                 autoCorrect="off"
                 spellCheck="false"
+                placeholder={placeholder}
                 htmlFor={id}
                 contentEditable={true}
-                suppressContentEditableWarning={true}
-                ref={refChipsInput}
+                suppressContentEditableWarning={true} // protected content editable
+                ref={refLabel}
             >
+            {placeHolder && <span className='chipsInput__placeholder'>{placeHolder}</span>}
             {inputChips.initLastValue}
             </label>
             <input
@@ -255,7 +320,7 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
                 readOnly
                 className='chipsInput__input'
                 placeholder={placeholder} />
-            {!isValid && <span style={{color: "red"}}>Закройте кавычки</span>}
+            {!isValid && <span className='chipsInput__error'>Закройте кавычки</span>}
         </div>
     );
 };

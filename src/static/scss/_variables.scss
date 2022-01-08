@@ -20,6 +20,7 @@ $font-color: $grey-200;
 $placeholder: $grey-100;
 $bckg-field: $grey-50;
 $close: $blue-200;
+$close-hover: $blue-500;
 
 $chips-bckg: $blue-100;
 $chips-font-color: $blue-600;
@@ -31,5 +32,7 @@ $error: #dd6d52;
 
 // border
 $chips-border: 2px solid $chips-bckg;
-$chips-border-selected: 2px solid $chips-border-color;
+$chips-border-selected: $chips-border-color;
+
 // transition
+$transition-chips: all 0.25s easy-in;
