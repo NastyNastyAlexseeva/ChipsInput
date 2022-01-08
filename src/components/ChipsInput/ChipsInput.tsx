@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef } from 'react';
+import { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import Chips from '../Chips';
 
 import './ChipsInput.scss';
@@ -12,298 +12,122 @@ interface IChipsInput {
 }
 
 const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
-    const inputRef = useRef<HTMLLabelElement | null>();
-    const reg: RegExp = /,(?=([^"]*"[^"]*")*(?![^"]*"))/gm;
+
+    const isValidQuotes = (validationString) => {
+        let quotesCount = 0;
+
+        for(let i=0; i <= value.length; i++) {
+            if(validationString[i] === '"') {
+                quotesCount++;
+            }
+        };
+
+        return !(quotesCount % 2);
+    };
+
+    const [isValid, setValid] = useState(isValidQuotes(value));
+
+    const reg: RegExp = /,(?=(?:[^"]*"[^"]*")*[^"]*$)/gm;
+    const isLastQuotes: Boolean = value[value.length-1] === ',';
+    const arrValue: string[] = value.split(reg);
+    const lastValue: string = isValid ? arrValue[arrValue.length -1] : value;
+
     const [inputChips, setInputChips] = useState({
         chips: [],
         value: '',
-        initLastValue: value[value.length-1] !== ',' && value.split(',')[value.split(',').length-1],
+        initLastValue: '',
     });
+    const [isEdit, setEdit] = useState(false);
 
-    useLayoutEffect(() => {
-        // console.log(labelValue, splitValue);
-        // splitLabelValue();
-        // createChips();
-        // setChipsValue(chipsStaticArray);
-        // labelRef.current?.setSelectionRange
-        createChips2();
-    },[value]);
-
-    const createChips2 = () => {
-        // const valueArr: string[] = value.split(',');
+    const initChips = () => {
         let newArrChips: string[] = [];
-        let lastValue: string = '';
 
-        // value.split(',').forEach(chips => {
-        //     if(chips) {
-        //         newArrChips.push(chips);
-        //     }
-        // });
+        if(isValid) {
 
-        // setInitValue('');
+            if(isLastQuotes) {
+                value.split(reg).forEach(chips => {
+                    if(chips && chips !== ' ') {
+                        newArrChips.push(chips);
+                    }
+                });
 
-        if(value[value.length-1] === ',') {
-            // newArrChips.pop();
-            // setInitValue(lastChips);
-            // setInputChips({
-            //     chips: a,
-            //     value: inputChips.value,
-            // });
-            // console.log('1');
-            // setInitValue(inputChips.value);
-            // value.split(',').forEach(chips => {
-            //     if(chips) {
-            //         newArrChips.push(chips);
-            //     }
-            // });
-            // setInitValue('');
-            lastValue = '';
-            value.split(',').forEach(chips => {
-                if(chips) {
-                    newArrChips.push(chips);
-                }
-            });
+            } else {
+                value.split(reg).forEach((chips, index) => {
+                    if(chips && chips !== ' ' && index !== arrValue.length-1) {
+                        newArrChips.push(chips);
+                    }
+                });
+            }
 
-        } else {
-            value.split(',').forEach((chips, index) => {
-                if(chips && index !== value.split(',').length-1) {
-                    newArrChips.push(chips);
-                }
-
-                if(index === value.split(',').length-1) {
-                    lastValue = chips;
-                }
-            });
-
-        }
-
-        if(inputChips.value.includes(',')) {
-            newArrChips.push(inputChips.value.substring(0, inputChips.value.length-1));
-            lastValue = inputChips.value.substring(inputChips.value.indexOf(',')+1);
-
-            // console.log(inputChips.value.substring(inputChips.value.indexOf(',')+1))
-            // console.log(inputChips.value.substring(inputChips.value.indexOf(',')+1));
         }
 
         setInputChips({
             chips: newArrChips,
-            value: lastValue,
-            initLastValue: inputChips.initLastValue,
+            value: value,
+            initLastValue: lastValue,
         });
-
-        // console.log(inputChips);
-
-        // console.log("AllValue",value);
-        // if(inputChips.value.includes(',')) {
-        //     console.log(inputChips.value.includes(','))
-        //     //     setSplitValue(event.target.innerText.substring(0,event.target.innerText.indexOf(',')+1));
-        //     //     // console.log(splitValue);
-        //     // const a = event.target.innerText.substring(event.target.innerText.indexOf(',')+1);
-        //     // event.target.innerText = a;
-
-            
-        //     setInputChips({
-        //         chips: [],
-        //         value: inputChips.value.substring(0, inputChips.value.indexOf(',')+1),
-        //     })
-        // }
-        // let currentValue: string = value;
-
-        // for(let i = 0; i <= currentValue.length; i++) {
-        //     if(currentValue[i] === ',') {
-        //         chipsArr.push(currentValue.substring(0, i+1));
-        //         currentValue = currentValue.substring(i+1, currentValue.length);
-        //     }
-        // }
-        // const lastValue: string = value.split(/,/);
-        // const currentValue: string = value.split(/,/).pop();
-
-
-        // value.split(',').forEach(chips => {
-        //     if(chips) {
-        //         chipsArr.push(chips);
-        //     }
-
-            
-        //     if(!chipsValue.includes(chips) && chips !== inputChips.value) {
-        //         chipsArr.push(chips);
-        //     }
-        // });
     }
 
-    // const splitLabelValue = () => {
-    //     // if(splitValue[splitValue.length] === ',') {
-    //         setLabelValue('');
-    //     // }
-    // }
+    useLayoutEffect(() => {
+        initChips();
+        setEdit(true);
+    },[]);
 
-    const createChips = () => {
-        // const stringChips = value.replace(/,(?=(([^']*'){2})*[^']*$)(?=(([^\"]*\"){2})*[^\"]*$)(?![^()]*\\)/gm, '&#44;');
-        // value.split(',').forEach(chips => {
-        //     // if(!chipsStaticArray.includes(chips)) {
-        //         chipsStaticArray.push(chips);
-        //     // }
-        // });
+    useLayoutEffect(() => {
+        if(isEdit) {
+            editInput();
+        }
+    },[value]);
 
+    const editInput = () => {
+        let newArrChips: string[] = [];
 
-        // let chipsString: string = value.replace(splitValue, '');
+        if(isValid) {
+            const validComma = reg.exec(inputChips.value)?.index;
 
-        // if(chipsString[chipsString.length-1] !== ',') {
-        //     chipsString.replace(splitValue, '');
-        // }
+            if(inputChips.value[validComma]) {
+                inputChips.value.split(reg).forEach((chips, index) => {
+                    if(chips && chips !== ' ' && index !== inputChips.value.split(reg).length-1) {
+                        newArrChips.push(chips);
+                    }
+                });
 
-        // console.log(chipsString);
+            }
 
-        // value.split(',').forEach(chips => {
-        //     if(chips) {
-        //         chipsArr.push(chips);
-        //     }
-        // });
-
-        // if(labelValue[labelValue.length] !== ',') {
-        //     // setSplitValue(value.replace(chipsStaticArray.join(","), ''));
-        //     chipsArr.pop();
-        // }
-
-            // if(splitValue[splitValue.length-1] === ',') {
-            //     if(chips) {
-            //         chipsArr.push(splitValue);
-            //     }
-            // }
-
-            // if(value[value.length - 1] === ',') {
-            //     if(chips) {
-            //         chipsArr.push(chips);
-            //     }
-            // }
-
-            // if(!chipsValue.includes(chips) && chips !== splitValue) {
-            //     // chipsStaticArray.push(chips);
-            //     // setChipsValue();
-            //     chipsArr.push(chips);
-            // }
-
-        // if(splitValue.includes(',')) {
-        //     chipsArr.push(splitValue.replace(',', ''));
-        // }
-
-        // setChipsValue(chipsArr);
-        // console.log(splitValue);
-
-
-        // parseValueForLabel('');
-        // setLabelValue('');
-
-        // if(value[value.length] !== ',') {
-        //     chipsStaticArray.pop();
-        //     // parseValueForLabel(value.replace(chipsStaticArray.join(","), ''));
-        //     // setLabelValue(value.replace(chipsStaticArray.join(","), ''));
-        // }
-
-        // parseValueForChips(chipsStaticArray);
-
-        // setChipsValue(arrChips);
-        // console.log(value, labelValue, chipsValue);
-
-        // if(value[value.length] !== ',') {
-        //     value.split(/,/).forEach(ships => arrChips.push(ships));
-        // } else {
-        //     arrChips = [...value.split(/,/)].slice(0, arrChips.length-1);
-        // }
-        
-        // setChipsValue(arrChips);
-        // const regExpChips: RegExp = /("[^"]*?),+([^"]*?")/;
-        // // console.log(value.match(/,/))
-        // // console.log(value.split(/,/).join())
-        // // const chipsNewValue = value.match(regExpChips) as [] ?? "";
-        // let chipsArr: string[] = [];
-        // let labelValue: string = value;
-        // // // console.log(newArr);
-
-        // for(let i: number = 0; i <= labelValue.length; i++) {
-        //     // if(value[i] !== RegExp.test(value[i])) chipsArr.push(value.slice(i))
-        //     // value.substring(value[i])
-        //     if(value[i] === ',') {
-        //         chipsArr.push(value.slice(0, i));
-        //         labelValue = labelValue.slice()
-        //     }
-        // }
-        // let arrChips: string[] = value.split(regExpChips);
-        // return arrChips;
-    };
+            setInputChips({
+                chips: [...inputChips.chips,...newArrChips],
+                value: inputChips.value,
+                initLastValue: inputChips.initLastValue,
+            });
+        }
+    }
 
     const keyChipsGenerator = () => {
         return `key_${Math.random()*10}`;
     };
 
     const handlerLabel = (event: React.ChangeEvent<HTMLLabelElement>) => {
-        // setLabelValue(value);
-        // event.target.innerText = splitValue;
-
-
-        // console.log(inputChips.value)
-
-        // event.target.innerText = value;
-
-        // if(event.target.innerText.includes(',')) {
-        //     // setSplitValue(event.target.innerText.substring(0,event.target.innerText.indexOf(',')+1));
-        //     // console.log(splitValue);
-        //     const a = event.target.innerText.substring(event.target.innerText.indexOf(',')+1);
-        //     event.target.innerText = a;
-
-        // } else {
-        //     // setSplitValue(event.target.innerText);
-        // }
-
-
-
-        // if(event.target.innerText[event.target.innerText.length-1] !== ',') {
-
-        // }
-
-        // setSplitValue(event.target.innerText);
-
-        // console.log(splitValue);
-        // setLabelValue(event.target.innerText);
-        // event.target.innerText = event.target.innerText;
-        // console.log(event.target.createTextRange())
-        // event.target.setSelectionRange(pos, pos)
-        // event.currentTarget.selectionStart
-        // const a = value+event.target.innerText;
-        // const currentValue = () => {
-        //     if(event.target.innerText)
-        // }
-
-        // console.log(event.target.innerText, value);
-
-        // event.target.innerText = value;
-
-        // event.target.selectionStart = event.target.selectionEnd = event.target.innerText.length;
-
+        const text = event.target.innerText;
+        setInputChips({
+            chips: inputChips.chips,
+            value: text,
+            initLastValue: inputChips.initLastValue,
+        });
+        setValid(isValidQuotes(text));
 
         if(onChange) {
             let chipsString: string = inputChips.chips.join(',') + ', ';
 
-            onChange(chipsString + event.target.innerText);
+            onChange(chipsString + text);
+            const validComma = reg.exec(text)?.index;
 
-            if(event.target.innerText.includes(',')) {
-                const substring = event.target.innerText.substring(event.target.innerText.indexOf(',')+1);
-                event.target.innerText = substring;
+            if(isValidQuotes(text) && text[validComma]) {
+                let replaceValidComma = text.replace(reg, "&#44;");
+                event.target.innerText = replaceValidComma.substring(replaceValidComma.lastIndexOf("&#44;")+5);
             }
-    
-            setInputChips({
-                chips: inputChips.chips,
-                value: event.target.innerText,
-                initLastValue: inputChips.initLastValue,
-            });
 
             event.target.focus();
-    
-            // console.log("Event target", event.target.innerText, '\n', "chipsValue", inputChips.value, '\n', "last value", inputChips.initLastValue);
-
         };
-
-        // event.target.innerText = event.target.innerText
     };
 
     return (
@@ -330,7 +154,6 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
                 spellCheck="false"
                 htmlFor={id}
                 contentEditable={true}
-                ref={inputRef}
                 suppressContentEditableWarning={true}
             >
             {inputChips.initLastValue}
@@ -343,6 +166,7 @@ const ChipsInput = ({id, name, value, placeholder, onChange}: IChipsInput) => {
                 readOnly
                 className='chipsInput__input'
                 placeholder={placeholder} />
+            {!isValid && <span style={{color: "red"}}>Закройте кавычки</span>}
         </div>
     );
 };
